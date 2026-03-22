@@ -2,7 +2,7 @@ from app.services.base import BaseService
 from app.models import Rabotyaga
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.exceptions import NameAlreadyTakenError
+from app.exceptions import NameAlreadyTakenError, RabotyagaByIdNotFound
 
 
 class RabotyagaService(BaseService[Rabotyaga]):
@@ -21,3 +21,12 @@ class RabotyagaService(BaseService[Rabotyaga]):
             raise NameAlreadyTakenError("Имя уже занято")
 
         return await super().create(obj_in)
+
+
+    # В классе RabotyagaService
+    async def add_to_balance(self, rabotyaga_id: int, amount: float):
+        rabotyaga = await self.get_by_id(rabotyaga_id)
+        if rabotyaga:
+            rabotyaga.total_balance += amount
+            await self.session.commit()
+            await self.session.refresh(rabotyaga)

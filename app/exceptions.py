@@ -4,3 +4,6 @@ class AppError(Exception):
 
 class NameAlreadyTakenError(AppError):
     pass
+
+class RabotyagaByIdNotFound(AppError):
+    pass

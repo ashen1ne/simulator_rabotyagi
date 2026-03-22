@@ -44,6 +44,19 @@ async def get_rabotyaga(rabotyaga: Rabotyaga = Depends(get_rabotyaga_by_id)):
     return rabotyaga
 
 
+@router.delete("/{rabotyaga_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_rabotyaga(
+    rabotyaga_id: int, session: AsyncSession = Depends(get_async_session)
+):
+    rabotyaga_service = RabotyagaService(session=session)
+    result = await rabotyaga_service.delete(obj_id=rabotyaga_id)
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Работяга по id: {rabotyaga_id} не найден",
+        )
+        
+        
 @router.patch("/{rabotyaga_id}", response_model=RabotyagaResponse)
 async def update_rabotyaga(
     rabotyaga_id: int,

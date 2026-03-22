@@ -2,10 +2,10 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from app.db import Base, create_db_and_tables
 from contextlib import asynccontextmanager
-from app.exceptions import NameAlreadyTakenError
+from app.exceptions import NameAlreadyTakenError, RabotyagaByIdNotFound
 
 from app.api.rabotyaga import router as rabotyaga_router
-
+from app.api.smena import router as smena_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -16,7 +16,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(rabotyaga_router)
-
+app.include_router(smena_router)
 
 @app.exception_handler(NameAlreadyTakenError)
 async def name_taken_exception_handler(request: Request, exc: NameAlreadyTakenError):
@@ -25,6 +25,12 @@ async def name_taken_exception_handler(request: Request, exc: NameAlreadyTakenEr
         content={"detail": str(exc)},
     )
 
+@app.exception_handler(RabotyagaByIdNotFound)
+async def name_taken_exception_handler(request: Request, exc: RabotyagaByIdNotFound):
+    return JSONResponse(
+        status_code=404,
+        content={"detail": str(exc)},
+    )
 
 @app.get("/")
 async def root():

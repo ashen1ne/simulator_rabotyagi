@@ -42,3 +42,16 @@ class SmenaResponse(SmenaBase):
     zarabotok: float = 0
 
     model_config = ConfigDict(from_attributes=True)
+    
+
+class ScheduleCreate(BaseModel):
+    rabotyaga_id: int
+    start_date: datetime = Field(default_factory=datetime.now) 
+    count_months: int = Field(2, ge=1, le=12)
+
+    @field_validator("start_date")
+    @classmethod
+    def validate_date(cls, v: datetime):
+        if v.date() < datetime.now().date():
+            raise ValueError("Нельзя составить график на прошедшее время")
+        return v
