@@ -19,6 +19,12 @@ class RabotyagaResponse(RabotyagaBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+class RabotyagaUpdate(BaseModel):
+    rabotyaga_name: str | None = Field(None, min_length=1, max_length=50)
+    hourly_rate: float | None = Field(None, ge=1, le=1_000_000)
+    total_balance: float | None = Field(None, ge=0)
+
+
 class SmenaBase(BaseModel):
     start_smena: datetime
     status: Status = Status.zaplanorivona

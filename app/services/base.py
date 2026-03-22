@@ -39,3 +39,17 @@ class BaseService(Generic[ModelType]):
         await self.session.delete(obj)
         await self.session.commit()
         return True
+    
+    async def update(self, obj_id: int, obj_in: dict) -> ModelType | None:
+        db_obj = await self.get_by_id(obj_id)
+        if not db_obj:
+            return None
+
+        for field, value in obj_in.items():
+            if value is not None:
+                setattr(db_obj, field, value)
+
+        self.session.add(db_obj)
+        await self.session.commit()
+        await self.session.refresh(db_obj)
+        return db_obj

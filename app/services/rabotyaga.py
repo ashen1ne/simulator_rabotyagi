@@ -1,24 +1,23 @@
 from app.services.base import BaseService
 from app.models import Rabotyaga
 from sqlalchemy import select
-from app.schemas import RabotyagaCreate
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.exceptions import NameAlreadyTakenError
+
 
 class RabotyagaService(BaseService[Rabotyaga]):
     def __init__(self, session: AsyncSession):
         super().__init__(model=Rabotyaga, session=session)
-    
-    
+
     async def find_by_name(self, name: str) -> Rabotyaga | None:
         stmt = select(self.model).where(self.model.rabotyaga_name == name)
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
-    
+
     async def create(self, obj_in: dict):
-        
+
         rabotyaga_exist = await self.find_by_name(obj_in["rabotyaga_name"])
         if rabotyaga_exist:
             raise NameAlreadyTakenError("Имя уже занято")
-        
+
         return await super().create(obj_in)
