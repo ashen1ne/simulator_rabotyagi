@@ -46,27 +46,38 @@ class SmenaService(BaseService[Smena]):
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
     
-    async def open_smena(self, smena_id: int) -> Smena:
+    async def get_smena_by_id(self, smena_id: int, rabotyaga_id: int) -> Smena:
         smena = await self.get_by_id(obj_id=smena_id)
-        if not smena or smena.actual_start:
-            return smena # Либо выбросить ошибку "Смена уже открыта"
         
+        if not smena:
+            raise ValueError("Смена не найдена") # Или свой Exception
+        if smena.rabotyaga_id != rabotyaga_id:
+            raise ValueError("Это не ваша смена!")
+        
+        
+        return smena
+
+    
+    async def open_smena(self, smena_id: int, rabotyaga_id: int) -> Smena:
+        smena = await self.get_smena_by_id(smena_id=smena_id, rabotyaga_id=rabotyaga_id)
+        
+        if smena.actual_start:
+            raise ValueError("Смана уже открыта")
         smena.actual_start = datetime.now()
-        smena.status = Status.active # У тебя в Enum наверняка есть такой статус
+        smena.status = Status.active
         
         await self.session.commit()
         await self.session.refresh(smena)
         return smena
 
-    async def close_smena(self, smena_id: int) -> Smena:
-        smena = await self.get_by_id(obj_id=smena_id)
-        if not smena or smena.actual_end:
-            return smena
+    async def close_smena(self, smena_id: int, rabotyaga_id: int) -> Smena:
+        smena = await self.get_smena_by_id(smena_id=smena_id, rabotyaga_id=rabotyaga_id)
+        
+        if smena.actual_end:
+            raise ValueError("Смана уже закрыта")
         
         smena.actual_end = datetime.now()
         smena.status = Status.vipolena 
-        
-        smena.zarabotok = await self.calculate_earnings(smena)
         
         smena.zarabotok = await self.calculate_earnings(smena)
         await self.rabotyaga_service.add_to_balance(smena.rabotyaga_id, smena.zarabotok)

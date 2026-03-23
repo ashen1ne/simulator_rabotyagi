@@ -6,6 +6,8 @@ from app.exceptions import NameAlreadyTakenError, RabotyagaByIdNotFound
 
 from app.api.rabotyaga import router as rabotyaga_router
 from app.api.smena import router as smena_router
+from app.api.auth import router as auth_router
+import app.api.deps
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -17,6 +19,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(rabotyaga_router)
 app.include_router(smena_router)
+app.include_router(auth_router)
 
 @app.exception_handler(NameAlreadyTakenError)
 async def name_taken_exception_handler(request: Request, exc: NameAlreadyTakenError):
@@ -26,7 +29,7 @@ async def name_taken_exception_handler(request: Request, exc: NameAlreadyTakenEr
     )
 
 @app.exception_handler(RabotyagaByIdNotFound)
-async def name_taken_exception_handler(request: Request, exc: RabotyagaByIdNotFound):
+async def rabotyaga_not_found_exception_handler(request: Request, exc: RabotyagaByIdNotFound):
     return JSONResponse(
         status_code=404,
         content={"detail": str(exc)},

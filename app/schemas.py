@@ -11,11 +11,12 @@ class RabotyagaBase(BaseModel):
 
 
 class RabotyagaCreate(RabotyagaBase):
-    pass
+    password: str | None = Field(None, min_length=8, max_length=32)
 
 
 class RabotyagaResponse(RabotyagaBase):
     id: int
+    
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -45,7 +46,6 @@ class SmenaResponse(SmenaBase):
     
 
 class ScheduleCreate(BaseModel):
-    rabotyaga_id: int
     start_date: datetime = Field(default_factory=datetime.now) 
     count_months: int = Field(2, ge=1, le=12)
 

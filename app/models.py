@@ -10,6 +10,7 @@ class Rabotyaga(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     rabotyaga_name: Mapped[str] = mapped_column(String(50), nullable=False)
+    hashed_password: Mapped[str | None] = mapped_column(String(255))
     hourly_rate: Mapped[float] = mapped_column(nullable=False, default=600)
     total_balance: Mapped[float] = mapped_column(nullable=False, default=0)
 

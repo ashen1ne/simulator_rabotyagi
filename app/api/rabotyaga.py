@@ -5,7 +5,7 @@ from app.db import get_async_session
 from app.models import Rabotyaga
 from app.services.rabotyaga import RabotyagaService
 
-router = APIRouter(prefix="/rabotyagi")
+router = APIRouter(prefix="/rabotyagi", tags=["rabotyagi"])
 
 
 async def get_rabotyaga_by_id(
@@ -19,15 +19,6 @@ async def get_rabotyaga_by_id(
             detail=f"Работяга по id: {rabotyaga_id} не найден",
         )
 
-    return rabotyaga
-
-
-@router.post("/", response_model=RabotyagaResponse, status_code=status.HTTP_201_CREATED)
-async def create_rabotyaga(
-    rabotyaga: RabotyagaCreate, session: AsyncSession = Depends(get_async_session)
-):
-    rabotyaga_service = RabotyagaService(session=session)
-    rabotyaga = await rabotyaga_service.create(obj_in=rabotyaga.model_dump())
     return rabotyaga
 
 
