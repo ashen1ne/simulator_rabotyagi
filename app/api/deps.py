@@ -2,15 +2,16 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.db import get_async_session
+from app.core.db import get_async_session
 from app.services.rabotyaga import RabotyagaService
-from app.security import SECRET_KEY, ALGORITHM
+from app.core.security import SECRET_KEY, ALGORITHM
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
+
 async def get_current_rabotyaga(
     token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -24,7 +25,7 @@ async def get_current_rabotyaga(
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    
+
     service = RabotyagaService(session)
     user = await service.get_by_id(int(user_id))
     if not user:

@@ -1,7 +1,7 @@
 from typing import Generic, TypeVar, Type, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.db import Base
+from app.core.db import Base
 from app.exceptions import RabotyagaByIdNotFound
 
 ModelType = TypeVar("ModelType", bound=Base)
@@ -13,14 +13,14 @@ class BaseService(Generic[ModelType]):
         self.session = session
 
     async def get_by_id(self, obj_id: int) -> ModelType:
-        
+
         stmt = select(self.model).where(self.model.id == obj_id)
         result = await self.session.execute(stmt)
         exist = result.scalar_one_or_none()
         if not exist:
             raise RabotyagaByIdNotFound(f"Работяга по id: obj_id")
         return exist
-        
+
     async def get_all(self, skip: int = 0, limit: int = 100) -> list[ModelType]:
         stmt = select(self.model).offset(skip).limit(limit)
         result = await self.session.execute(stmt)
@@ -44,7 +44,7 @@ class BaseService(Generic[ModelType]):
         await self.session.delete(obj)
         await self.session.commit()
         return True
-    
+
     async def update(self, obj_id: int, obj_in: dict) -> ModelType | None:
         db_obj = await self.get_by_id(obj_id)
         if not db_obj:

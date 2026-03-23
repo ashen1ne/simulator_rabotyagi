@@ -3,8 +3,7 @@ from app.models import Rabotyaga
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.exceptions import NameAlreadyTakenError, RabotyagaByIdNotFound
-from app.security import get_password_hash
-
+from app.core.security import get_password_hash
 
 
 class RabotyagaService(BaseService[Rabotyaga]):
@@ -20,7 +19,7 @@ class RabotyagaService(BaseService[Rabotyaga]):
         rabotyaga_exist = await self.find_by_name(obj_in["rabotyaga_name"])
         if rabotyaga_exist:
             raise NameAlreadyTakenError("Имя уже занято")
-        
+
         password = obj_in.pop("password", None)
         if password:
             obj_in["hashed_password"] = get_password_hash(password=password)
@@ -28,7 +27,6 @@ class RabotyagaService(BaseService[Rabotyaga]):
             obj_in["hashed_password"] = None
 
         return await super().create(obj_in)
-
 
     # В классе RabotyagaService
     async def add_to_balance(self, rabotyaga_id: int, amount: float):

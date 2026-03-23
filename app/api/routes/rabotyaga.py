@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from app.schemas import RabotyagaResponse, RabotyagaCreate, RabotyagaUpdate
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.db import get_async_session
+from app.core.db import get_async_session
 from app.models import Rabotyaga
 from app.services.rabotyaga import RabotyagaService
 
@@ -46,24 +46,24 @@ async def delete_rabotyaga(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Работяга по id: {rabotyaga_id} не найден",
         )
-        
-        
+
+
 @router.patch("/{rabotyaga_id}", response_model=RabotyagaResponse)
 async def update_rabotyaga(
     rabotyaga_id: int,
     data: RabotyagaUpdate,
-    session: AsyncSession = Depends(get_async_session)
+    session: AsyncSession = Depends(get_async_session),
 ):
     service = RabotyagaService(session)
-    
+
     # Важно: используем exclude_unset=True
-    # Это гарантирует, что в словарь попадут только те поля, 
+    # Это гарантирует, что в словарь попадут только те поля,
     # которые пользователь ЯВНО передал в JSON
     update_data = data.model_dump(exclude_unset=True)
-    
+
     updated_obj = await service.update(obj_id=rabotyaga_id, obj_in=update_data)
-    
+
     if not updated_obj:
         raise HTTPException(status_code=404, detail="Работяга не найден")
-        
+
     return updated_obj
